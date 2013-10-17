@@ -29,7 +29,7 @@ PhoneGap（cordova）的基本结构就建立完成了，然后用 IDE 打开 pl
 
 定位到 cordova 的项目目录下，比如这里的 hello
 
-`cordova plugin add https://github.com/morlay/cordova-plugin-jpush`
+`cordova plugin add https://github.com/lincolnlk/cordova-plugin-jpush`
 
 并且在 `platform/android/AndroidManifest.xml` 中，将如下地方修改下
 
