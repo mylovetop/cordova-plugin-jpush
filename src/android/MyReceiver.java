@@ -48,6 +48,8 @@ public class MyReceiver extends BroadcastReceiver {
 
         for (String key : intent.getExtras().keySet()) {
             if (!IGNORED_EXTRAS_KEYS.contains(key)) {
+
+                Log.e("Jpush key", "key:" + key);
                 extrasMap.put(key, intent.getStringExtra(key));
             }
         }
@@ -58,10 +60,12 @@ public class MyReceiver extends BroadcastReceiver {
         String alert = intent.getStringExtra(JPushInterface.EXTRA_ALERT);
         Map<String, String> extras = getNotificationExtras(intent);
 
+
         Intent launch = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         launch.addCategory(Intent.CATEGORY_LAUNCHER);
         launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+        JPush.isFromAlert = true;
         JPush.incomingAlert = alert;
         JPush.incomingExtras = extras;
 
@@ -69,5 +73,14 @@ public class MyReceiver extends BroadcastReceiver {
     }
 
     private static final List<String> IGNORED_EXTRAS_KEYS =
-            Arrays.asList("cn.jpush.android.TITLE", "cn.jpush.android.MESSAGE", "cn.jpush.android.APPKEY");
+            Arrays.asList(
+                    "app",
+                    "cn.jpush.android.TITLE",
+                    "cn.jpush.android.ALERT",
+                    "cn.jpush.android.NOTIFICATION_CONTENT_TITLE",
+                    "cn.jpush.android.NOTIFICATION_ID",
+                    "cn.jpush.android.EXTRA",
+                    "cn.jpush.android.MESSAGE",
+                    "cn.jpush.android.APPKEY"
+            );
 }

@@ -46,11 +46,20 @@ PhoneGap（cordova）的基本结构就建立完成了，然后用 IDE 打开 pl
 
 在 PhoneGap 的入口文件 js 中 放到 对应函数里即可。
 
-通过 `window.plugins.JPush` 调用
+通过 `window.plugins.jPush` 调用
 
     document.addEventListener('deviceready',function(){
 
-           window.plugins.JPush.init(true);
+        plugins.jPush.setNoticeCallBack(noticeCallBack).init(true);
+
+        function noticeCallBack(data) {
+            console.log(data);
+            // data 中包含字段 isFromAlert
+            // 如果是从通知栏启动应用
+            is(data.isFromAlert == "true"){
+                // do something 比如跳到子页面
+            }
+        }
 
     }, false);
 

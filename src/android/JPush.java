@@ -24,7 +24,7 @@ import cn.jpush.android.api.JPushInterface;
 
 public class JPush extends CordovaPlugin {
 
-    private static String TAG = "Client Receiver";
+    private static String TAG = "JPush CordovaPlugin";
 
     private final static List<String> methodList =
             Arrays.asList(
@@ -32,13 +32,14 @@ public class JPush extends CordovaPlugin {
                     "stopPush",
                     "resumePush",
                     "setTags",
-                    "setTagAlias",
+                    "setTagsAlias",
                     "setAlias",
-                    "getIncoming"
+                    "getNoticeData"
             );
     private ExecutorService executorService = Executors.newFixedThreadPool(1);
     private static JPush instance;
 
+    public static Boolean isFromAlert;
     public static String incomingAlert;
     public static Map<String, String> incomingExtras;
 
@@ -69,7 +70,7 @@ public class JPush extends CordovaPlugin {
             return;
         }
         JSONObject data = notificationObject(message, extras);
-        String js = String.format("window.plugins.JPush.setNoticeData(%s);", data.toString());
+        String js = String.format("window.plugins.jPush.setNoticeData(%s);", data.toString());
         try {
             instance.webView.sendJavascript(js);
         } catch (NullPointerException e) {
@@ -110,7 +111,7 @@ public class JPush extends CordovaPlugin {
     }
 
     void stopPush(JSONArray data, CallbackContext callbackContext) {
-        JPushInterface.resumePush(this.cordova.getActivity().getApplicationContext());
+        JPushInterface.stopPush(this.cordova.getActivity().getApplicationContext());
     }
 
     void resumePush(JSONArray data, CallbackContext callbackContext) {
@@ -122,11 +123,14 @@ public class JPush extends CordovaPlugin {
     void setTags(JSONArray data, CallbackContext callbackContext) {
         HashSet<String> tags = new HashSet<String>();
         try {
-            String tagStr = data.getString(0);
-            String[] tagArr = tagStr.split(",");
-            for (String tag : tagArr) {
-                tags.add(tag);
+            Log.v(TAG, data.getJSONArray(0).toString());
+
+
+            JSONArray tagsArr = data.getJSONArray(0);
+            for (int i = 0; i < tagsArr.length(); i++) {
+                tags.add(tagsArr.getString(i));
             }
+
             Set<String> validTags = JPushInterface.filterValidTags(tags);
             JPushInterface.setTags(this.cordova.getActivity().getApplicationContext(), validTags, null);
             callbackContext.success();
@@ -149,7 +153,7 @@ public class JPush extends CordovaPlugin {
         }
     }
 
-    void setTagAlias(JSONArray data, CallbackContext callbackContext) {
+    void setTagsAlia(JSONArray data, CallbackContext callbackContext) {
         HashSet<String> tags = new HashSet<String>();
         String alias;
         try {
@@ -159,6 +163,7 @@ public class JPush extends CordovaPlugin {
                 tags.add(tagsArr.getString(i));
             }
 
+            Set<String> validTags = JPushInterface.filterValidTags(tags);
             JPushInterface.setAliasAndTags(this.cordova.getActivity().getApplicationContext(), alias, tags);
             callbackContext.success();
         } catch (JSONException e) {
@@ -167,12 +172,14 @@ public class JPush extends CordovaPlugin {
         }
     }
 
-    void getIncoming(JSONArray data, CallbackContext callBackContext) {
+    void getNoticeData(JSONArray data, CallbackContext callBackContext) {
         String alert = JPush.incomingAlert;
+        Boolean isFromAlert = JPush.isFromAlert;
         Map<String, String> extras = JPush.incomingExtras;
 
         JSONObject jsonData = new JSONObject();
         try {
+            jsonData.put("isFromAlert", isFromAlert.toString());
             jsonData.put("message", alert);
             jsonData.put("extras", new JSONObject(extras));
         } catch (JSONException e) {
@@ -182,6 +189,7 @@ public class JPush extends CordovaPlugin {
         callBackContext.success(jsonData);
 
         JPush.incomingAlert = "";
+        JPush.isFromAlert = false;
         JPush.incomingExtras = new HashMap<String, String>();
     }
 }

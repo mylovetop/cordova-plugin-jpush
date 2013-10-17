@@ -34,6 +34,7 @@ var app = {
 
 
         function msgCallBack(msg) {
+            console.log("jpush", JSON.stringify(msg));
             $callBackArea.innerHTML = JSON.stringify(msg);
         }
 
@@ -44,13 +45,13 @@ var app = {
 
 
         function noticeCallBack(data) {
-            console.log(data);
+            console.log("jpush", JSON.stringify(data));
             $noticeArea.innerHTML = JSON.stringify(data);
         }
 
 
-        plugins.jPush.init(true).setNoticeCallBack(noticeCallBack);
+        plugins.jPush.setNoticeCallBack(noticeCallBack).init(true, msgCallBack);
 
-        console.log('Received Event: ' + id);
+
     }
 };

@@ -9,6 +9,7 @@ JPush.prototype._failureCallback = function (msg) {
     console.log("JPush Javascript Callback Error: " + msg)
 };
 
+
 JPush.prototype._callNative = function (action, args, successCallback) {
     if (arguments.length == 2) {
         args = []
@@ -29,7 +30,23 @@ JPush.prototype._callNative = function (action, args, successCallback) {
  * @returns {*}
  */
 JPush.prototype.init = function (isDebug, callback) {
+    var self = this;
     this._callNative("init", [isDebug], callback);
+    document.addEventListener("resume", function () {
+        self.getNoticeData(self.noticeCallBack);
+    });
+    // 从应用关闭时候打开需要触发
+    this.getNoticeData(this.noticeCallBack);
+    return this;
+};
+
+
+/**
+ * 主动获取通知
+ * @returns {*}
+ */
+JPush.prototype.getNoticeData = function (callback) {
+    this._callNative("getNoticeData", [], callback);
     return this;
 };
 
@@ -54,9 +71,6 @@ JPush.prototype.resumePush = function (callback) {
     return this;
 };
 
-
-// alias 别名 唯一
-// tags 可设置多个 , 分割
 
 /**
  * 设置标签数组
@@ -117,3 +131,5 @@ JPush.prototype.setNoticeCallBack = function (noticeCallBack) {
     this.noticeCallBack = noticeCallBack;
     return this;
 };
+
+module.exports = (new JPush());
